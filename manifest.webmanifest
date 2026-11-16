@@ -2,7 +2,7 @@
   "name": "Digimon Story: Time Stranger Tool",
   "short_name": "Time Stranger Tool",
   "description": "Offline progression roadmap and automatic save-sync companion for Digimon Story: Time Stranger.",
-  "start_url": "./time-stranger-roadmap.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
