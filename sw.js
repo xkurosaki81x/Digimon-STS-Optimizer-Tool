@@ -1,5 +1,5 @@
 const CACHE = 'time-stranger-tool-v1.3-pwa';
-const ASSETS = ['./', './time-stranger-roadmap.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
@@ -14,5 +14,5 @@ self.addEventListener('fetch', event => {
     const copy = response.clone();
     caches.open(CACHE).then(cache => cache.put(event.request, copy));
     return response;
-  }).catch(() => caches.match('./time-stranger-roadmap.html'))));
+  }).catch(() => caches.match('./index.html'))));
 });
