@@ -3429,19 +3429,38 @@ function targetsForAPV162(){
   return out;
 }
 function apPlanV162(){
-  const targets=targetsForAPV162(),gateMap={},statMap={},branchMap={};
+  const targets=targetsForAPV162(),gateMap={},statMap={},targetBranchMap={},rosterBranchMap={};
   for(const t of targets){
     for(const c of t.milestone.evolutionConditions||[]){
       if(c.type==='agentSkillCount'&&c.branch)gateMap[c.branch]=Math.max(gateMap[c.branch]||0,Number(c.min)||0);
       if(c.type==='stat'&&c.stat)statMap[c.stat]=(statMap[c.stat]||0)+t.weight;
     }
     const branch=branchForPersonalityV162(t.milestone.personality);
-    if(branch&&branch!=='Loyalty')branchMap[branch]=(branchMap[branch]||0)+t.weight;
+    if(branch&&branch!=='Loyalty')targetBranchMap[branch]=(targetBranchMap[branch]||0)+t.weight;
+  }
+  const coreKeys=new Set(typeof coreKeysV16==='function'?[...coreKeysV16(view)]:[]);
+  for(const o of state.owned||[]){
+    if(o.enhancementCandidate)continue;
+    const s=typeof strength==='function'?strength(o):null;
+    if(!s?.key||!coreKeys.has(s.key))continue;
+    const profile=typeof recText16==='function'?recText16(o):{};
+    const personality=profile?.personality||o.personality||nodeForV162(o.name)?.personality||'';
+    const branch=branchForPersonalityV162(personality);
+    if(branch&&branch!=='Loyalty'){
+      const weight=String(o.where||'').startsWith('Active')?150:String(o.where||'').startsWith('Reserve')?100:o.where==='DigiFarm'?25:50;
+      rosterBranchMap[branch]=(rosterBranchMap[branch]||0)+weight;
+    }
+    if(!Object.keys(statMap).length){
+      const role=s.role||'';
+      const roleStats=role==='physical'?['ATK','SPD']:role==='magic'?['INT','SP']:role==='support'?['SPI','SP','HP']:[];
+      for(const stat of roleStats)statMap[stat]=(statMap[stat]||0)+weight;
+    }
   }
   const gates=Object.entries(gateMap).map(([branch,need])=>{
     const got=state.agentSkillsV161?.learnedCount?.[branch];
     return {branch,need,got:got===null||got===undefined?null:Number(got),status:got===null||got===undefined?'unknown':Number(got)>=need?'met':'short'};
   }).sort((a,b)=>b.need-a.need);
+  const branchMap=Object.keys(targetBranchMap).length?targetBranchMap:rosterBranchMap;
   const branchesNeeded=Object.entries(branchMap).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
   const statNeeds=Object.keys(statMap).sort((a,b)=>statMap[b]-statMap[a]);
   const gateShort=gates.find(x=>x.status==='short');
