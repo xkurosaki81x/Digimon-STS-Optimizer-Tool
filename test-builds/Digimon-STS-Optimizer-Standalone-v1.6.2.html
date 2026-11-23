@@ -3384,7 +3384,8 @@ function permRecommendationV162(item){
   if(item.kind==='talent')detail='Talent is retained through normal Digivolution and De-Digivolution. Early use is safe on this route; consume it when the current form is approaching its level cap. Exact cap urgency is not inferred because Talent recording is optional.';
   else if(item.kind==='stat')detail='The cumulative-stat increase is retained through this documented normal-evolution path and matches a future stat gate or the target role. This does not automatically confirm that the evolution threshold is met. DNA and mode-change carry-over remain unverified.';
   else if(item.kind==='bond')detail='Bond carries through normal Digivolution and De-Digivolution and supports cumulative-stat inheritance. Applying it before the remaining normal evolution steps can benefit the route. DNA and mode-change carry-over remain unverified.';
-  return {title:(available>0?'Use early on ':'Early-use candidate: ')+picks.map(copyNameV162).join(', '),detail:detail+' Verified route: '+path.nodes.join(' → ')+'.',recommendedIds:available>0?picks.map(o=>o.id):[],persistence:persistenceRecordV162(item)};
+  const earlyTitle=item.kind==='talent'?'Safe early recipient: ':'Use early on ';
+  return {title:(available>0?earlyTitle:'Early-use candidate: ')+picks.map(copyNameV162).join(', '),detail:detail+' Verified route: '+path.nodes.join(' → ')+'.',recommendedIds:available>0?picks.map(o=>o.id):[],persistence:persistenceRecordV162(item)};
 }
 function recipientListV162(item){
   const list=state.permanentItems.recipients?.[item.name];
