@@ -3294,6 +3294,9 @@ const persistenceV162={
 function ensureStateV162(){
   state.uiV162 ||= {};
   if(state.uiV162.fieldGuideOpen===undefined)state.uiV162.fieldGuideOpen=false;
+  state.agentSkillsV161 ||= {learnedCount:{},digivolutionSkills:{}};
+  state.agentSkillsV161.learnedCount ||= {};
+  state.agentSkillsV161.digivolutionSkills ||= {};
   state.agentSkillsV162 ||= {};
   state.agentSkillsV162.prerequisiteStatus ||= {};
   if(!state.permanentItems||typeof state.permanentItems!=='object')state.permanentItems={obtained:{},used:{},recipient:{},recipients:{}};
@@ -3355,7 +3358,7 @@ function permRecommendationV162(item){
   }
   if(finalOwned.length&&available>0)return {title:'Use on '+copyNameV162(finalOwned[0]),detail:'The final core target is already owned. Apply the permanent effect to the target unless an earlier form is still the active investment.',recommendedIds:finalOwned.slice(0,available).map(o=>o.id),persistence:persistenceRecordV162(item)};
   const candidates=(state.owned||[]).filter(o=>{
-    if(o.enhancementCandidate||o.where==='DigiFarm'&&item.kind==='talent')return false;
+    if(o.enhancementCandidate)return false;
     const fi=typeof formInfo==='function'?formInfo(o.name,o.route):null;
     return !!fi&&fi.key===target.key&&fi.idx<target.idx;
   }).map(o=>{
@@ -3381,7 +3384,7 @@ function permRecommendationV162(item){
   if(item.kind==='talent')detail='Talent is retained through normal Digivolution and De-Digivolution. Early use is safe on this route; consume it when the current form is approaching its level cap. Exact cap urgency is not inferred because Talent recording is optional.';
   else if(item.kind==='stat')detail='The cumulative-stat increase is retained through this documented normal-evolution path and matches a future stat gate or the target role. This does not automatically confirm that the evolution threshold is met. DNA and mode-change carry-over remain unverified.';
   else if(item.kind==='bond')detail='Bond carries through normal Digivolution and De-Digivolution and supports cumulative-stat inheritance. Applying it before the remaining normal evolution steps can benefit the route. DNA and mode-change carry-over remain unverified.';
-  return {title:'Early use on '+picks.map(copyNameV162).join(', '),detail:detail+' Verified route: '+path.nodes.join(' → ')+' → '+target.name+'.',recommendedIds:picks.map(o=>o.id),persistence:persistenceRecordV162(item)};
+  return {title:(available>0?'Use early on ':'Early-use candidate: ')+picks.map(copyNameV162).join(', '),detail:detail+' Verified route: '+path.nodes.join(' → ')+'.',recommendedIds:available>0?picks.map(o=>o.id):[],persistence:persistenceRecordV162(item)};
 }
 function recipientListV162(item){
   const list=state.permanentItems.recipients?.[item.name];
@@ -3562,7 +3565,6 @@ function annotateCriticalFieldsV162(){
 const style=document.createElement('style');
 style.textContent='.v162Readiness summary,.v162FieldGuide summary,.v162APDetails summary,.v162PersistenceRef summary{cursor:pointer;display:flex;flex-direction:column;gap:3px}.v162Readiness summary small,.v162FieldGuide summary small{color:var(--muted);font-weight:400}.v162Readiness h4{margin:14px 0 7px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.07em}.v162ReadyGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}.v162ReadyCard{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:5px;min-width:0}.v162ReadyCard>span,.v162FieldTag{font-size:10px;font-weight:800;letter-spacing:.05em;color:var(--muted)}.v162ReadyCard small{color:var(--muted);line-height:1.4}.v162ReadyCard button{align-self:flex-start;margin-top:4px}.v162ReadyCard.critical{border-left:3px solid #d69b35}.v162ReadyCard.important{border-left:3px solid #6a9dc5}.v162ReadyCard.optional{border-left:3px solid #7d8491}.v162ReadyCard.auto{border-left:3px solid #4a9b79}.v162FieldTag{display:block;margin-top:4px}.v162FieldTag.critical{color:#d8a74e}.v162FieldTag.important{color:#82b6db}.v162APPanel{border:1px solid var(--accent,#4b8b76)}.v162APInputs{display:grid;grid-template-columns:minmax(150px,1fr) minmax(150px,1fr);gap:10px;margin:10px 0}.v162APInputs>div{display:flex;flex-direction:column;gap:5px;padding:8px;border:1px solid var(--line);border-radius:8px}.v162APInputs small,.v162Tiny{font-size:12px;color:var(--muted);line-height:1.45}.v162APNext{padding:12px;border:1px solid var(--line);border-radius:10px;margin:8px 0}.v162APNext h3{margin:5px 0}.v162APNext p{margin:5px 0 9px}.v162APStatus{font-size:11px;font-weight:800;color:var(--muted)}.v162APStatus.met{color:var(--green)}.v162APStatus.short{color:#d8a74e}.v162APStatus.unknown{color:var(--muted)}.v162APRow{display:grid;grid-template-columns:1fr 75px 130px;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}.v162APRow span:nth-child(2){text-align:right}.v162Prereq{display:block;margin-top:10px}.v162Prereq select{margin-top:4px}.v162APDetails{margin-top:10px}.v162PersistenceRef{margin-top:12px;padding-top:8px;border-top:1px solid var(--line)}.v162PersistGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:10px}.v162PersistGrid>div{padding:9px;border:1px solid var(--line);border-radius:8px}.v162PersistGrid small{display:block;color:var(--muted);margin-top:4px;line-height:1.4}.v162Evidence{color:var(--muted)}.v162Tiny{margin-top:8px}@media(max-width:560px){.v162APInputs{grid-template-columns:1fr}.v162APRow{grid-template-columns:1fr 55px 105px;font-size:12px}}';
 document.head.appendChild(style);
-const basePermPanel=globalThis.permPanelV17;
 globalThis.permRecommendationV17=permRecommendationV162;
 globalThis.permPanelV17=permPanelV162;
 const baseDashboard=renderDashboard;
