@@ -3439,6 +3439,7 @@ function apPlanV162(){
     if(branch&&branch!=='Loyalty')targetBranchMap[branch]=(targetBranchMap[branch]||0)+t.weight;
   }
   const coreKeys=new Set(typeof coreKeysV16==='function'?[...coreKeysV16(view)]:[]);
+  const hasEvolutionStatNeeds=Object.keys(statMap).length>0;
   for(const o of state.owned||[]){
     if(o.enhancementCandidate)continue;
     const s=typeof strength==='function'?strength(o):null;
@@ -3450,7 +3451,7 @@ function apPlanV162(){
       const weight=String(o.where||'').startsWith('Active')?150:String(o.where||'').startsWith('Reserve')?100:o.where==='DigiFarm'?25:50;
       rosterBranchMap[branch]=(rosterBranchMap[branch]||0)+weight;
     }
-    if(!Object.keys(statMap).length){
+    if(!hasEvolutionStatNeeds){
       const role=s.role||'';
       const roleStats=role==='physical'?['ATK','SPD']:role==='magic'?['INT','SP']:role==='support'?['SPI','SP','HP']:[];
       for(const stat of roleStats)statMap[stat]=(statMap[stat]||0)+weight;
